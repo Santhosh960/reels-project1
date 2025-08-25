@@ -52,6 +52,12 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Reels app custom colors
+				like: 'hsl(var(--like-color))',
+				share: 'hsl(var(--share-color))',
+				views: 'hsl(var(--view-color))',
+				live: 'hsl(var(--live-indicator))',
+				streaming: 'hsl(var(--streaming-glow))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

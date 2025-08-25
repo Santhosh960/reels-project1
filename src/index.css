@@ -2,41 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Reels Streaming App Design System - Dark theme with vibrant gradients */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Dark theme base colors */
+    --background: 220 13% 9%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 224 14% 11%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 224 14% 11%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
+    /* Vibrant gradient primary colors */
+    --primary: 271 81% 56%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 215 16% 15%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 330 81% 60%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 215 16% 20%;
+    --input: 215 16% 20%;
+    --ring: 271 81% 56%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Custom reels app colors */
+    --gradient-primary: linear-gradient(135deg, hsl(271 81% 56%), hsl(330 81% 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(330 81% 60%), hsl(20 85% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(220 13% 9%), hsl(224 14% 11%));
+    
+    /* Engagement colors */
+    --like-color: 348 83% 47%;
+    --share-color: 200 98% 39%;
+    --view-color: 47 96% 89%;
+    
+    /* Status indicators */
+    --live-indicator: 0 84% 60%;
+    --streaming-glow: 271 81% 56%;
+    
+    /* Animation variables */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Shadows and effects */
+    --shadow-glow: 0 0 40px hsl(271 81% 56% / 0.3);
+    --shadow-card: 0 8px 32px hsl(220 13% 9% / 0.8);
+    --shadow-floating: 0 20px 60px hsl(220 13% 9% / 0.9);
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +124,52 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Reels-specific components */
+  .reel-card {
+    @apply relative overflow-hidden rounded-2xl;
+    background: var(--gradient-accent);
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
+  }
+  
+  .reel-card:hover {
+    box-shadow: var(--shadow-floating);
+    transform: translateY(-4px);
+  }
+  
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .streaming-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .engagement-button {
+    @apply flex items-center justify-center p-3 rounded-full;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: var(--transition-bounce);
+  }
+  
+  .engagement-button:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .live-indicator {
+    @apply flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium;
+    background: linear-gradient(135deg, hsl(var(--live-indicator)), hsl(var(--accent)));
+    animation: pulse 2s infinite;
   }
 }
