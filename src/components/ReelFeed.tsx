@@ -72,67 +72,93 @@ export const ReelFeed = () => {
     }
   ];
 
-  // Simulate WebSocket/SSE connection for Kafka stream
+  // Real WebSocket connection to Kafka Gateway
   useEffect(() => {
-    // Simulate connection establishment
-    const connectTimer = setTimeout(() => {
+    const userId = 'user_1'; // In real app, get from auth
+    const ws = new WebSocket(`ws://localhost:8000/ws/${userId}`);
+    
+    ws.onopen = () => {
       setIsConnected(true);
+      // Set initial mock reels
       setReels(mockReels);
       toast.success("Connected to Kafka stream!");
-    }, 1000);
-
-    // Simulate receiving new reels
-    const streamTimer = setInterval(() => {
-      if (Math.random() > 0.7) { // 30% chance of new reel
-        const newReel: ReelData = {
-          id: `reel_${Date.now()}`,
-          creator_id: `creator_${Math.floor(Math.random() * 100)}`,
-          username: `user${Math.floor(Math.random() * 1000)}`,
-          description: `New streaming content just dropped! #live #realtime #kafka`,
-          thumbnail: `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 100000000)}?w=400&h=600&fit=crop`,
-          duration: Math.floor(Math.random() * 60) + 15,
-          views: Math.floor(Math.random() * 10000),
-          likes: Math.floor(Math.random() * 500),
-          shares: Math.floor(Math.random() * 50),
-          comments: Math.floor(Math.random() * 100),
-          isLive: Math.random() > 0.8,
-          timestamp: "just now"
-        };
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
         
-        setReels(prev => [newReel, ...prev].slice(0, 10)); // Keep only 10 latest
-        setMessagesReceived(prev => prev + 1);
-        toast.info(`New reel from @${newReel.username}`, {
-          duration: 2000,
-        });
+        if (message.type === 'new_reel') {
+          const newReel = message.data;
+          setReels(prev => [newReel, ...prev].slice(0, 10)); // Keep only 10 latest
+          setMessagesReceived(prev => prev + 1);
+          toast.info(`New reel from @${newReel.username}`, {
+            duration: 2000,
+          });
+        } else if (message.type === 'engagement_update') {
+          // Handle real-time engagement updates
+          const { reel_id, type, count } = message.data;
+          setReels(prev => prev.map(reel => 
+            reel.id === reel_id 
+              ? { ...reel, [type]: count }
+              : reel
+          ));
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
       }
-    }, 3000);
+    };
+    
+    ws.onclose = () => {
+      setIsConnected(false);
+      toast.error("Disconnected from Kafka stream");
+    };
+    
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setIsConnected(false);
+      toast.error("Connection error");
+    };
 
     return () => {
-      clearTimeout(connectTimer);
-      clearInterval(streamTimer);
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+  }, []);
+
+  const sendEngagementEvent = useCallback((type: string, reelId: string) => {
+    // Send engagement event through WebSocket to Kafka
+    const userId = 'user_1'; // In real app, get from auth
+    const ws = new WebSocket(`ws://localhost:8000/ws/${userId}`);
+    
+    ws.onopen = () => {
+      ws.send(JSON.stringify({
+        type,
+        reel_id: reelId,
+        timestamp: Date.now()
+      }));
+      ws.close();
     };
   }, []);
 
   const handleLike = useCallback((reelId: string) => {
-    // Here you would send engagement event to Kafka
-    console.log(`Engagement event: like for reel ${reelId}`);
+    sendEngagementEvent('like', reelId);
     toast.success("Like sent!", { duration: 1000 });
-  }, []);
+  }, [sendEngagementEvent]);
 
   const handleShare = useCallback((reelId: string) => {
-    // Here you would send engagement event to Kafka
-    console.log(`Engagement event: share for reel ${reelId}`);
+    sendEngagementEvent('share', reelId);
     toast.success("Shared!", { duration: 1000 });
-  }, []);
+  }, [sendEngagementEvent]);
 
   const handleView = useCallback((reelId: string) => {
-    // Here you would send engagement event to Kafka
-    console.log(`Engagement event: view for reel ${reelId}`);
-  }, []);
+    sendEngagementEvent('view', reelId);
+  }, [sendEngagementEvent]);
 
   const handleVideoEnd = useCallback((reelId: string) => {
     // Send completion event to Kafka and award wallet bonus
-    console.log(`Video completed: ${reelId}`);
+    sendEngagementEvent('completion', reelId);
     
     // Dispatch wallet bonus event
     window.dispatchEvent(new CustomEvent('walletBonus', {
@@ -140,7 +166,7 @@ export const ReelFeed = () => {
     }));
     
     toast.success("Video completed! +50 coins earned 🎉", { duration: 3000 });
-  }, []);
+  }, [sendEngagementEvent]);
 
   return (
     <div className="relative min-h-screen bg-background">

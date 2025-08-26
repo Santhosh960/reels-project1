@@ -1,0 +1,26 @@
+{
+  "name": "reels-kafka-backend",
+  "version": "1.0.0",
+  "description": "Kafka-based reels streaming backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "producer": "node src/services/producer.js",
+    "feed-assembler": "node src/services/feedAssembler.js",
+    "gateway": "node src/services/gateway.js",
+    "counters": "node src/services/counters.js",
+    "load-test": "node scripts/loadTest.js"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "redis": "^4.6.7",
+    "uuid": "^9.0.0",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

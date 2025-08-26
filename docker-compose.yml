@@ -110,17 +110,32 @@ services:
     networks:
       - kafka-network
 
-  # React Frontend Application
-  reels-app:
-    build: .
-    container_name: reels-frontend
+  # Node.js Backend Services
+  reels-backend:
+    build: ./backend
+    container_name: reels-backend
     ports:
-      - "3000:80"
+      - "8000:8000"
     depends_on:
       - kafka1
       - kafka2
       - kafka3
       - redis
+    environment:
+      - NODE_ENV=production
+    networks:
+      - kafka-network
+    volumes:
+      - ./backend/results:/app/results
+
+  # React Frontend Application
+  reels-frontend:
+    build: .
+    container_name: reels-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - reels-backend
     networks:
       - kafka-network
 
