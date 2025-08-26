@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ReelCard } from "./ReelCard";
 import { StreamingIndicator } from "./StreamingIndicator";
+import { WalletDisplay } from "./WalletDisplay";
 import { toast } from "sonner";
 
 interface ReelData {
@@ -9,6 +10,7 @@ interface ReelData {
   username: string;
   description: string;
   thumbnail: string;
+  videoUrl?: string;
   duration: number;
   views: number;
   likes: number;
@@ -31,6 +33,7 @@ export const ReelFeed = () => {
       username: "techcreator",
       description: "Building amazing Kafka streaming apps! 🚀 #kafka #realtime #streaming",
       thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=600&fit=crop",
+      videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
       duration: 30,
       views: 15420,
       likes: 892,
@@ -45,6 +48,7 @@ export const ReelFeed = () => {
       username: "designpro",
       description: "React + Kafka = ❤️ Real-time magic happening here!",
       thumbnail: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=600&fit=crop",
+      videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4",
       duration: 45,
       views: 8930,
       likes: 567,
@@ -126,6 +130,18 @@ export const ReelFeed = () => {
     console.log(`Engagement event: view for reel ${reelId}`);
   }, []);
 
+  const handleVideoEnd = useCallback((reelId: string) => {
+    // Send completion event to Kafka and award wallet bonus
+    console.log(`Video completed: ${reelId}`);
+    
+    // Dispatch wallet bonus event
+    window.dispatchEvent(new CustomEvent('walletBonus', {
+      detail: { amount: 50, reelId }
+    }));
+    
+    toast.success("Video completed! +50 coins earned 🎉", { duration: 3000 });
+  }, []);
+
   return (
     <div className="relative min-h-screen bg-background">
       {/* Header */}
@@ -134,10 +150,13 @@ export const ReelFeed = () => {
           <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
             Reels Stream
           </h1>
-          <StreamingIndicator 
-            isConnected={isConnected}
-            messagesReceived={messagesReceived}
-          />
+          <div className="flex items-center gap-4">
+            <WalletDisplay />
+            <StreamingIndicator 
+              isConnected={isConnected}
+              messagesReceived={messagesReceived}
+            />
+          </div>
         </div>
       </div>
 
@@ -165,6 +184,7 @@ export const ReelFeed = () => {
                 onLike={handleLike}
                 onShare={handleShare}
                 onView={handleView}
+                onVideoEnd={handleVideoEnd}
               />
             ))}
           </div>
